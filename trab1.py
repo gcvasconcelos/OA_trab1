@@ -28,11 +28,15 @@ def printa_arquivo(arquivo):
     print('MATRIC\tNOME\t\t\t\tOP\tCURSO\tTURMA')
     for linha in arquivo:
         dados = linha.split()
-        print(dados[0] + '\t' + ' '.join(dados[1:-3]) + '\t\t' + dados[-3] + '\t' + dados[-2] + '\t' + dados[-1])
+        tamanho_nome = len(' '.join(dados[1:-3]))
+        tabs = '\t\t'
+        if tamanho_nome >= 24:
+     		tabs = '\t'
+        print(dados[0] + '\t' + ' '.join(dados[1:-3]) + tabs + dados[-3] + '\t' + dados[-2] + '\t' + dados[-1])
     return
 
 
 lista1 = open('benchmarks/lista1.txt', 'r')
-# printa_arquivo(lista1)
+printa_arquivo(lista1)
 cria_indices(lista1, 'indicelista1.ind')
 lista1.close()
