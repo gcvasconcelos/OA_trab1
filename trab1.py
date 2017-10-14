@@ -27,7 +27,9 @@ def heapsort(array):
     return
 
 
+num_registros = 0
 def inicializa_registros(arquivo):
+    global num_registros
     registros = []
     for linha in arquivo:
         registro = {}
@@ -38,6 +40,7 @@ def inicializa_registros(arquivo):
         registro['curso'] = dados[-2]
         registro['turma'] = dados[-1]
         registros.append(registro)
+        num_registros += 1
     return registros
 
 
@@ -53,9 +56,11 @@ def inicializa_indices(arq_indices, registros):
         indices.append(indice)
         posicao += 1
         arq_indices.write(indice['pk'] + ' ' * (2 + (30 - len(indice['pk']))) + str(indice['posicao']) + '\n')
-    heapsort(indices)
     return indices
+
+
 def ordena_indices(arq_indices, indices):
+    arq_indices.seek(0, 0)
     heapsort(indices)
     for indice in indices:
         arq_indices.write(indice['pk'] + ' '*(2+(30-len(indice['pk']))) + str(indice['posicao']) + '\n')
@@ -86,6 +91,37 @@ def inicializa_indice_secundario(arq_secundario, registros, indices, ind_secunda
         i += 1
     return
 
+
+def printa_arquivo(arquivo):
+    for linha in arquivo:
+        print(linha)
+    return
+    
+
+def adicionar_registro(arq_registros, arq_indices, arq_secundario_op, arq_secundario_turma, registros, indices, novo_registro):
+    global num_registros
+    registros.append(novo_registro)
+    arq_registros.write('\n' + novo_registro['matric'] + ' ' + novo_registro['nome'] + '\t' + novo_registro['op'] + '\t' + novo_registro['curso'] + '\t' + novo_registro['turma'])
+    
+    indice = {}
+    chave_primaria = novo_registro['matric'] + '#' + novo_registro['nome']
+    chave_primaria = chave_primaria[0:30]
+    indice['pk'] = chave_primaria
+    indice['posicao'] = num_registros
+    num_registros += 1 
+    indices.append(indice)
+    ordena_indices(arq_indices, indices)
+
+    return
+
+
+def remover_registros(registros, posicao_remover):
+    controlador = 0
+    for i in range(posicao_remover, len(registros)-1):
+        registros[i] = registros[i+1]
+    registros.pop()
+    return
+
 arq_registros1 = open('benchmarks/lista1.txt', 'r')
 registros = inicializa_registros(arq_registros1)
 arq_registros1.close()
@@ -101,35 +137,6 @@ inicializa_indice_secundario(secundario_op, registros, indices, 'op')
 inicializa_indice_secundario(secundario_turma, registros, indices, 'turma')
 secundario_op.close()
 secundario_turma.close()
-
-
-def printa_arquivo(arquivo):
-    for linha in arquivo:
-        print(linha)
-    return
-
-
-def adicionar_registro(arq_registros, arq_indices, registros, indices, novo_registro):
-    registros.append(novo_registro)
-    arq_registros.write(novo_registro['matric'] + '\t' + novo_registro['nome'] + '\t' + novo_registro['op'] + '\t' + novo_registro['curso'] + '\t' + novo_registro['turma'] + '\n')
-    indice = {}
-    chave_primaria = novo_registro['matric'] + '#' + novo_registro['nome']
-    chave_primaria = chave_primaria[0:30]
-    indice['pk'] = chave_primaria
-    indice['posicao'] = posicao
-    indices.append(indice)
-    ordena_indices(indices)
-
-        
-    return
-
-def remover_registros(registros, posicao_remover):
-    controlador = 0
-    for i in range(posicao_remover, len(registros)-1):
-        registros[i] = registros[i+1]
-    registros.pop()
-    return
-
 
 print('\n\tMenu')
 print('1.\tVisualizar arquivos')
@@ -163,19 +170,21 @@ if opcao_menu == 1:
         print('Opcao invalida')
 elif opcao_menu == 2:
     novo_registro = {}
-    print('Digite a matricula:')
-    novo_registro['matric'] = input()
-    print('Digite o nome:')
-    novo_registro['nome'] = input()
-    print('Digite o OP:')
-    novo_registro['op'] = input()
-    print('Digite a curso:')
-    novo_registro['curso'] = input()
-    print('Digite a turma:')
-    novo_registro['turma'] = input()
-    arq_registros = open('lista1.txt', 'w')
-    arq_indices = open('lista1.txt', 'w')
-    adicionar_registro(arq_registros, arq_indices, registros, indices, novo_registro)
+    novo_registro['matric'] = raw_input('Digite a matricula: ')
+    novo_registro['nome'] = raw_input('Digite o nome: ')
+    novo_registro['op'] = raw_input('Digite o OP: ')
+    novo_registro['curso'] = raw_input('Digite a curso: ')
+    novo_registro['turma'] = raw_input('Digite a turma: ')
+    # novo_registro = {'matric': '045000', 'nome': 'XXXXXXXXXXXXXXXXXX', 'op': '35', 'curso': 'G', 'turma': 'AB'}
+    arq_registros = open('benchmarks/lista1.txt', 'a')
+    arq_indices = open('indice_lista1.ind', 'w+')
+    arq_secundario_op = open('op_lista1.ind', 'a')
+    arq_secundario_turma = open('turma_lista1.ind', 'a')
+    adicionar_registro(arq_registros, arq_indices, arq_secundario_op, arq_secundario_turma, registros, indices, novo_registro)
+    arq_registros.close()
+    arq_indices.close()
+    arq_secundario_op.close()
+    arq_secundario_turma.close()
 elif opcao_menu == 3:
     arquivo = open('indice_lista1.ind', 'r')
     printa_arquivo(arquivo)
@@ -205,4 +214,3 @@ elif opcao_menu == 3:
         d += 1
     lista1.close()
     new_lista1.close()
-
