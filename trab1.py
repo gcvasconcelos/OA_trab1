@@ -45,7 +45,7 @@ def inicializa_indices(arq_indices, registros):
         indice['posicao'] = posicao
         indices.append(indice)
         posicao += 1
-        arq_indices.write(indice['pk'] + '\t' + str(indice['posicao']) + '\n')
+        arq_indices.write(indice['pk'] + ' '*(2+(30-len(indice['pk']))) + str(indice['posicao']) + '\n')
     heapsort(indices)
     return indices
 
@@ -64,7 +64,7 @@ def inicializa_indice_secundario(arq_secundario, registros, indices, ind_secunda
     for registro in registros:
         if registro[ind_secundario] in opcoes:
             foo = opcoes.index(registro[ind_secundario])
-            arq_secundario.write(indices[i]['pk'] + '\t' + registro[ind_secundario] + '\t' + str(head[foo]) + '\n')
+            arq_secundario.write(indices[i]['pk'] + ' '*(2+(30-len(indices[i]['pk']))) + registro[ind_secundario] + '\t' + str(head[foo]) + '\n')
             head[foo] = indices[i]['posicao']
         i += 1
     return
