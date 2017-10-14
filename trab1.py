@@ -1,3 +1,29 @@
+def troca_valores(array, i, j):
+    array[i], array[j] = array[j], array[i]
+
+def heapify(array, comeco, fim):
+    esquerda = 2 * comeco  + 1
+    direita = 2 * (comeco  + 1)
+    maximo = comeco
+    if esquerda < fim and array[comeco] < array[esquerda]:
+        maximo = esquerda
+    if direita < fim and array[maximo] < array[direita]:
+        maximo = direita
+    if maximo != comeco:
+        troca_valores(array, comeco, maximo)  
+        heapify(array, maximo, fim)
+    return  
+
+def heapsort(array):
+    fim = len(array)
+    comeco = fim // 2 - 1
+    for i in range(comeco, -1, -1):
+        heapify(array, i, fim)
+    for i in range(fim-1, 0, -1):
+        troca_valores(array, i, 0)
+        heapify(array, 0, i)
+    return
+
 def inicializa_registros(arquivo):
     registros = []
     for linha in arquivo:
@@ -23,6 +49,7 @@ def inicializa_indices(arq_indices, registros):
         indices.append(indice)
         posicao += 1
         arq_indices.write(indice['pk'] + '\t' + str(indice['posicao']) + '\n')
+    heapsort(indices)
     return indices
 
 def opcoes_secundario(registros, ind_secundario):
