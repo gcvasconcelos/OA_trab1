@@ -46,8 +46,12 @@ def inicializa_indices(arq_indices, registros):
         indices.append(indice)
         posicao += 1
         arq_indices.write(indice['pk'] + ' '*(2+(30-len(indice['pk']))) + str(indice['posicao']) + '\n')
-    heapsort(indices)
     return indices
+def ordena_indices(arq_indices, indices):
+    heapsort(indices)
+    for indice in indices:
+        arq_indices.write(indice['pk'] + ' '*(2+(30-len(indice['pk']))) + str(indice['posicao']) + '\n')
+    return
 
 def opcoes_secundario(registros, ind_secundario):
     opcoes = []
@@ -69,13 +73,14 @@ def inicializa_indice_secundario(arq_secundario, registros, indices, ind_secunda
         i += 1
     return
 
-lista1 = open('benchmarks/lista1.txt', 'r')
-registros = inicializa_registros(lista1)
-lista1.close()
+arq_registros1 = open('benchmarks/lista1.txt', 'r')
+registros = inicializa_registros(arq_registros1)
+arq_registros1.close()
 
-indices1 = open('indice_lista1.ind', 'w+')
-indices = inicializa_indices(indices1, registros)
-indices1.close()
+arq_indices1 = open('indice_lista1.ind', 'w+')
+indices = inicializa_indices(arq_indices1, registros)
+ordena_indices(arq_indices1, indices)
+arq_indices1.close()
 
 secundario_op = open('op_lista1.ind', 'w+')
 secundario_turma = open('turma_lista1.ind', 'w+')
@@ -90,7 +95,17 @@ def printa_arquivo(arquivo):
     return
 
 def adicionar_registro(arq_registros, arq_indices, registros, indices, novo_registro):
-    
+    registros.append(novo_registro)
+    arq_registros.write(novo_registro['matric'] + '\t' + novo_registro['nome'] + '\t' + novo_registro['op'] + '\t' + novo_registro['curso'] + '\t' + novo_registro['turma'] + '\n')
+    indice = {}
+    chave_primaria = novo_registro['matric'] + '#' + novo_registro['nome']
+    chave_primaria = chave_primaria[0:30]
+    indice['pk'] = chave_primaria
+    indice['posicao'] = posicao
+    indices.append(indice)
+    ordena_indices(indices)
+
+        
     return
 
 print('\n\tMenu')
@@ -122,7 +137,7 @@ if opcao_menu == 1:
         printa_arquivo(arquivo)
         arquivo.close()
     else:
-        print('Opção inválida')
+        print('Opcao invalida')
 elif opcao_menu == 2:
     novo_registro = {}
     print('Digite a matricula:')
@@ -137,4 +152,4 @@ elif opcao_menu == 2:
     novo_registro['turma'] = input()
     arq_registros = open('lista1.txt', 'w')
     arq_indices = open('lista1.txt', 'w')
-    adicionar_registro(arq_registros, arq_indices, registros, indices, novo_registro)  
+    adicionar_registro(arq_registros, arq_indices, registros, indices, novo_registro)
