@@ -57,7 +57,7 @@ def inicializa_indices(arq_indices, registros):
         indice['posicao'] = posicao
         indices.append(indice)
         posicao += 1
-        arq_indices.write(indice['pk'] + ' ' * (2 + (30 - len(indice['pk']))) + str(indice['posicao']) + '\n')
+        arq_indices.write(indice['pk'] + ' ' *(32 - len(indice['pk'])) + str(indice['posicao']) + '\n')
     return indices
 
 
@@ -65,7 +65,7 @@ def ordena_indices(arq_indices, indices):
     arq_indices.seek(0, 0)
     heapsort(indices)
     for indice in indices:
-        arq_indices.write(indice['pk'] + ' ' * (2 + (30 - len(indice['pk']))) + str(indice['posicao']) + '\n')
+        arq_indices.write(indice['pk'] + ' ' *32 - len(indice['pk'])) + str(indice['posicao']) + '\n')
     return
 
 
