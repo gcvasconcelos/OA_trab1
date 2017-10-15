@@ -28,6 +28,8 @@ def heapsort(array):
 
 
 num_registros = 0
+
+
 def inicializa_registros(arquivo):
     global num_registros
     registros = []
@@ -63,7 +65,7 @@ def ordena_indices(arq_indices, indices):
     arq_indices.seek(0, 0)
     heapsort(indices)
     for indice in indices:
-        arq_indices.write(indice['pk'] + ' '*(2+(30-len(indice['pk']))) + str(indice['posicao']) + '\n')
+        arq_indices.write(indice['pk'] + ' ' * (2 + (30 - len(indice['pk']))) + str(indice['posicao']) + '\n')
     return
 
 
@@ -75,20 +77,28 @@ def opcoes_secundario(registros, ind_secundario):
     return opcoes
 
 
+def busca_registro(chave_primaria, ind_secundario, registros):
+    for registro in registros:
+        pk = registro['matric'] + '#' + registro['nome']
+        pk = pk[0:30]
+        if chave_primaria == pk:
+            return registro[ind_secundario]
+    return None
+
+
 def inicializa_indice_secundario(arq_secundario, registros, indices, ind_secundario):
     opcoes = opcoes_secundario(registros, ind_secundario)
     head = []
     for i in range(len(opcoes)):
         head.append(-1)
-    i = 0
-    for registro in registros:
-        if registro[ind_secundario] in opcoes:
-            foo = opcoes.index(registro[ind_secundario])
-            arq_secundario.write(
-                indices[i]['pk'] + ' ' * (2 + (30 - len(indices[i]['pk']))) + registro[ind_secundario] + '\t' + str(
-                    head[foo]) + '\n')
-            head[foo] = indices[i]['posicao']
-        i += 1
+
+    for indice in indices:
+        sk = busca_registro(indice['pk'], ind_secundario, registros)
+        for opcao in opcoes:
+            if sk == opcao:
+                foo = opcoes.index(opcao)
+                arq_secundario.write(str(indice['posicao']) + '\t' + indice['pk'] + ' '*(2+(30-len(indice['pk']))) + str(head[foo]) + '\n')
+                head[foo] = indice['posicao']
     return
 
 
@@ -96,22 +106,27 @@ def printa_arquivo(arquivo):
     for linha in arquivo:
         print(linha)
     return
-    
 
-def adicionar_registro(arq_registros, arq_indices, arq_secundario_op, arq_secundario_turma, registros, indices, novo_registro):
+
+def adicionar_registro(arq_registros, arq_indices, arq_secundario_op, arq_secundario_turma, registros, indices,
+                       novo_registro):
     global num_registros
     registros.append(novo_registro)
-    arq_registros.write('\n' + novo_registro['matric'] + ' ' + novo_registro['nome'] + '\t' + novo_registro['op'] + '\t' + novo_registro['curso'] + '\t' + novo_registro['turma'])
-    
+    arq_registros.write(
+        '\n' + novo_registro['matric'] + ' ' + novo_registro['nome'] + ' '*(41-len(novo_registro['nome'])) + novo_registro['op'] + ' '*4 +
+        novo_registro['curso'] + ' '*9 + novo_registro['turma'])
+
     indice = {}
     chave_primaria = novo_registro['matric'] + '#' + novo_registro['nome']
     chave_primaria = chave_primaria[0:30]
     indice['pk'] = chave_primaria
     indice['posicao'] = num_registros
-    num_registros += 1 
+    num_registros += 1
     indices.append(indice)
     ordena_indices(arq_indices, indices)
 
+    inicializa_indice_secundario(arq_secundario_op, registros, indices, 'op')
+    inicializa_indice_secundario(arq_secundario_turma, registros, indices, 'turma')
     return
 
 
@@ -136,10 +151,12 @@ def remove_lista(arquivo, posicao_remover):
         d += 1
     return registros
 
+
 def escreve_lista(arquivo, registros):
     for i in range(0, len(registros)):
         arquivo.write(registros[i])
     return
+
 
 arq_registros1 = open('benchmarks/lista1.txt', 'r')
 registros = inicializa_registros(arq_registros1)
@@ -194,45 +211,17 @@ elif opcao_menu == 2:
     novo_registro['op'] = raw_input('Digite o OP: ')
     novo_registro['curso'] = raw_input('Digite a curso: ')
     novo_registro['turma'] = raw_input('Digite a turma: ')
-    # novo_registro = {'matric': '045000', 'nome': 'XXXXXXXXXXXXXXXXXX', 'op': '35', 'curso': 'G', 'turma': 'AB'}
+
     arq_registros = open('benchmarks/lista1.txt', 'a')
     arq_indices = open('indice_lista1.ind', 'w+')
     arq_secundario_op = open('op_lista1.ind', 'a')
     arq_secundario_turma = open('turma_lista1.ind', 'a')
-    adicionar_registro(arq_registros, arq_indices, arq_secundario_op, arq_secundario_turma, registros, indices, novo_registro)
+    adicionar_registro(arq_registros, arq_indices, arq_secundario_op, arq_secundario_turma, registros, indices,
+                       novo_registro)
     arq_registros.close()
     arq_indices.close()
     arq_secundario_op.close()
     arq_secundario_turma.close()
-elif opcao_menu == 3:
-    arquivo = open('indice_lista1.ind', 'r')
-    printa_arquivo(arquivo)
-    arquivo.close()
-
-    print ('Digite a posicao do elemento a ser removido')
-    posicao_remover = input()
-    remover_registros(registros, posicao_remover)
-
-    indices1 = open('indice_lista1.ind', 'w+')
-    indices = inicializa_indices(indices1, registros)
-    indices1.close()
-
-    secundario_op = open('op_lista1.ind', 'w+')
-    secundario_turma = open('turma_lista1.ind', 'w+')
-    inicializa_indice_secundario(secundario_op, registros, indices, 'op')
-    inicializa_indice_secundario(secundario_turma, registros, indices, 'turma')
-    secundario_op.close()
-    secundario_turma.close()
-
-    lista1 = open('benchmarks/lista1.txt', 'r')
-    new_lista1 = open('lista1.txt', 'w')
-    d = 0
-    for lines in lista1:
-        if d != posicao_remover:
-            new_lista1.write(lines)
-        d += 1
-    lista1.close()
-    new_lista1.close()
 elif opcao_menu == 3:
     arquivo = open('indice_lista1.ind', 'r')
     printa_arquivo(arquivo)
@@ -258,7 +247,7 @@ elif opcao_menu == 3:
     secundario_turma.close()
 
     lista1 = open('benchmarks/lista1.txt', 'r')
-    regs = remove_lista(lista1,  posicao_remover)
+    regs = remove_lista(lista1, posicao_remover)
     lista1 = open('benchmarks/lista1.txt', 'w')
     escreve_lista(lista1, regs)
     lista1.close()
