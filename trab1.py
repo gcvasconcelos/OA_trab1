@@ -57,7 +57,7 @@ def inicializa_indices(arq_indices, registros):
         indice['posicao'] = posicao
         indices.append(indice)
         posicao += 1
-        arq_indices.write(indice['pk'] + ' ' *(32 - len(indice['pk'])) + str(indice['posicao']) + '\n')
+        arq_indices.write(indice['pk'] + ' ' * (2 + (30 - len(indice['pk']))) + str(indice['posicao']) + '\n')
     return indices
 
 
@@ -65,7 +65,7 @@ def ordena_indices(arq_indices, indices):
     arq_indices.seek(0, 0)
     heapsort(indices)
     for indice in indices:
-        arq_indices.write(indice['pk'] + ' ' *32 - len(indice['pk'])) + str(indice['posicao']) + '\n')
+        arq_indices.write(indice['pk'] + ' ' * (2 + (30 - len(indice['pk']))) + str(indice['posicao']) + '\n')
     return
 
 
@@ -91,15 +91,14 @@ def inicializa_indice_secundario(arq_secundario, registros, indices, ind_secunda
     head = []
     for i in range(len(opcoes)):
         head.append(-1)
-    i = 0
-    for registro in registros:
-        if registro[ind_secundario] in opcoes:
-            foo = opcoes.index(registro[ind_secundario])
-            arq_secundario.write(
-                indices[i]['pk'] + ' ' *(32 - len(indices[i]['pk'])) + registro[ind_secundario] + '\t' + str(
-                    head[foo]) + '\n')
-            head[foo] = indices[i]['posicao']
-        i += 1
+
+    for indice in indices:
+        sk = busca_registro(indice['pk'], ind_secundario, registros)
+        for opcao in opcoes:
+            if sk == opcao:
+                foo = opcoes.index(opcao)
+                arq_secundario.write(str(indice['posicao']) + '\t' + indice['pk'] + ' '*(2+(30-len(indice['pk']))) + str(head[foo]) + '\n')
+                head[foo] = indice['posicao']
     return
 
 
@@ -252,3 +251,40 @@ elif opcao_menu == 3:
     lista1 = open('benchmarks/lista1.txt', 'w')
     escreve_lista(lista1, regs)
     lista1.close()
+elif opcao_menu == 4:
+    arquivo = open('indice_lista1.ind', 'r')
+    printa_arquivo(arquivo)
+
+    print ('Qual matricula deseja atualizar?')
+    matric_atualizar = input()
+
+    posicao_atualizar = -1
+    for i in range(0, len(registros)):
+        if registros[i]['matric'] == matric_atualizar:
+            posicao_atualizar = i
+    print (registros[posicao_atualizar])
+    print ('O que deseja atualizar?')
+    print ('1\tMatricula')
+    print ('2\tNome')
+    print ('3\tOpcao')
+    print ('4\tCurso')
+    print ('5\tTurma')
+    campo_atualizar = input()
+    if campo_atualizar == 1:
+        campo = 'matric'
+    elif campo_atualizar == 1:
+        campo = 'nome'
+    elif campo_atualizar == 1:
+        campo = 'op'
+    elif campo_atualizar == 1:
+        campo = 'curso'
+    elif campo_atualizar == 1:
+        campo = 'turma'
+
+    print ('Digite o novo dado:')
+    dado = input()
+
+    if posicao_atualizar == -1:
+        print ('Registro nao encontrado')
+    else:
+        registros[i][campo] = dado
