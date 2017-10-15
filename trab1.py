@@ -91,14 +91,15 @@ def inicializa_indice_secundario(arq_secundario, registros, indices, ind_secunda
     head = []
     for i in range(len(opcoes)):
         head.append(-1)
-
-    for indice in indices:
-        sk = busca_registro(indice['pk'], ind_secundario, registros)
-        for opcao in opcoes:
-            if sk == opcao:
-                foo = opcoes.index(opcao)
-                arq_secundario.write(str(indice['posicao']) + '\t' + indice['pk'] + ' '*(2+(30-len(indice['pk']))) + str(head[foo]) + '\n')
-                head[foo] = indice['posicao']
+    i = 0
+    for registro in registros:
+        if registro[ind_secundario] in opcoes:
+            foo = opcoes.index(registro[ind_secundario])
+            arq_secundario.write(
+                indices[i]['pk'] + ' ' *(32 - len(indices[i]['pk'])) + registro[ind_secundario] + '\t' + str(
+                    head[foo]) + '\n')
+            head[foo] = indices[i]['posicao']
+        i += 1
     return
 
 
