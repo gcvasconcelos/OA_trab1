@@ -75,20 +75,27 @@ def opcoes_secundario(registros, ind_secundario):
     return opcoes
 
 
+def busca_registro(chave_primaria, ind_secundario, registros):
+    for registro in registros:
+        pk = registro['matric'] + '#' + registro['nome']
+        pk = pk[0:30]
+        if chave_primaria == pk:
+            return registro[ind_secundario]
+    return None
+
 def inicializa_indice_secundario(arq_secundario, registros, indices, ind_secundario):
     opcoes = opcoes_secundario(registros, ind_secundario)
     head = []
     for i in range(len(opcoes)):
         head.append(-1)
-    i = 0
-    for registro in registros:
-        if registro[ind_secundario] in opcoes:
-            foo = opcoes.index(registro[ind_secundario])
-            arq_secundario.write(
-                indices[i]['pk'] + ' ' * (2 + (30 - len(indices[i]['pk']))) + registro[ind_secundario] + '\t' + str(
-                    head[foo]) + '\n')
-            head[foo] = indices[i]['posicao']
-        i += 1
+
+    for indice in indices:
+        sk = busca_registro(indice['pk'], ind_secundario, registros)
+        for opcao in opcoes:
+            if sk == opcao:
+                foo = opcoes.index(opcao)
+                arq_secundario.write(str(indice['posicao']) + '\t' + indice['pk'] + '\t' + str(head[foo]) + '\n')
+                head[foo] = indice['posicao']
     return
 
 
@@ -112,14 +119,35 @@ def adicionar_registro(arq_registros, arq_indices, arq_secundario_op, arq_secund
     indices.append(indice)
     ordena_indices(arq_indices, indices)
 
+    inicializa_indice_secundario(arq_secundario_op, registros, indices, 'op')
+    inicializa_indice_secundario(arq_secundario_turma, registros, indices, 'turma')
     return
 
 
-def remover_registros(registros, posicao_remover):
-    controlador = 0
-    for i in range(posicao_remover, len(registros)-1):
-        registros[i] = registros[i+1]
-    registros.pop()
+def remover_registros(registros, matricula_remover):
+    posicao_remover = -1
+    for i in range(0, len(registros)):
+        if registros[i]['matric'] == matricula_remover:
+            posicao_remover = i
+    if posicao_remover == -1:
+        print ('Registro nao encontrado')
+    else:
+        registros.pop(posicao_remover)
+    return posicao_remover
+
+
+def remove_lista(arquivo, posicao_remover):
+    registros = []
+    d = 0
+    for lines in arquivo:
+        if d != posicao_remover:
+            registros.append(lines)
+        d += 1
+    return registros
+
+def escreve_lista(arquivo, registros):
+    for i in range(0, len(registros)):
+        arquivo.write(registros[i])
     return
 
 arq_registros1 = open('benchmarks/lista1.txt', 'r')
@@ -214,3 +242,32 @@ elif opcao_menu == 3:
         d += 1
     lista1.close()
     new_lista1.close()
+elif opcao_menu == 3:
+    arquivo = open('indice_lista1.ind', 'r')
+    printa_arquivo(arquivo)
+    arquivo.close()
+
+    print ('Digite a matricula do registro a ser removido')
+    matricula_remover = str(raw_input())
+
+    posicao_remover = remover_registros(registros, matricula_remover)
+
+    indices1 = open('indice_lista1.ind', 'w+')
+    indices = inicializa_indices(indices1, registros)
+
+    indices1 = open('indice_lista1.ind', 'r')
+    printa_arquivo(indices1)
+    indices1.close()
+
+    secundario_op = open('op_lista1.ind', 'w+')
+    secundario_turma = open('turma_lista1.ind', 'w+')
+    inicializa_indice_secundario(secundario_op, registros, indices, 'op')
+    inicializa_indice_secundario(secundario_turma, registros, indices, 'turma')
+    secundario_op.close()
+    secundario_turma.close()
+
+    lista1 = open('benchmarks/lista1.txt', 'r')
+    regs = remove_lista(lista1,  posicao_remover)
+    lista1 = open('benchmarks/lista1.txt', 'w')
+    escreve_lista(lista1, regs)
+    lista1.close()
