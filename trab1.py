@@ -75,20 +75,27 @@ def opcoes_secundario(registros, ind_secundario):
     return opcoes
 
 
+def busca_registro(chave_primaria, ind_secundario, registros):
+    for registro in registros:
+        pk = registro['matric'] + '#' + registro['nome']
+        pk = pk[0:30]
+        if chave_primaria == pk:
+            return registro[ind_secundario]
+    return None
+
 def inicializa_indice_secundario(arq_secundario, registros, indices, ind_secundario):
     opcoes = opcoes_secundario(registros, ind_secundario)
     head = []
     for i in range(len(opcoes)):
         head.append(-1)
-    i = 0
-    for registro in registros:
-        if registro[ind_secundario] in opcoes:
-            foo = opcoes.index(registro[ind_secundario])
-            arq_secundario.write(
-                indices[i]['pk'] + ' ' * (2 + (30 - len(indices[i]['pk']))) + registro[ind_secundario] + '\t' + str(
-                    head[foo]) + '\n')
-            head[foo] = indices[i]['posicao']
-        i += 1
+
+    for indice in indices:
+        sk = busca_registro(indice['pk'], ind_secundario, registros)
+        for opcao in opcoes:
+            if sk == opcao:
+                foo = opcoes.index(opcao)
+                arq_secundario.write(str(indice['posicao']) + '\t' + indice['pk'] + '\t' + str(head[foo]) + '\n')
+                head[foo] = indice['posicao']
     return
 
 
@@ -112,6 +119,8 @@ def adicionar_registro(arq_registros, arq_indices, arq_secundario_op, arq_secund
     indices.append(indice)
     ordena_indices(arq_indices, indices)
 
+    inicializa_indice_secundario(arq_secundario_op, registros, indices, 'op')
+    inicializa_indice_secundario(arq_secundario_turma, registros, indices, 'turma')
     return
 
 
@@ -138,79 +147,79 @@ inicializa_indice_secundario(secundario_turma, registros, indices, 'turma')
 secundario_op.close()
 secundario_turma.close()
 
-print('\n\tMenu')
-print('1.\tVisualizar arquivos')
-print('2.\tIncluir registro')
-print('3.\tExcluir registro')
-print('4.\tAtualizar registro')
-opcao_menu = input()
-if opcao_menu == 1:
-    print('\n1\tArquivo de dados')
-    print('2\tArquivo de indices primarios')
-    print("3\tArquivo de indice secundario 'OP'")
-    print("4\tArquivo de indice secundario 'TURMA'\n")
-    escolha = input()
-    if escolha == 1:
-        arquivo = open('benchmarks/lista1.txt', 'r')
-        printa_arquivo(arquivo)
-        arquivo.close()
-    elif escolha == 2:
-        arquivo = open('indice_lista1.ind', 'r')
-        printa_arquivo(arquivo)
-        arquivo.close()
-    elif escolha == 3:
-        arquivo = open('op_lista1.ind', 'r')
-        printa_arquivo(arquivo)
-        arquivo.close()
-    elif escolha == 4:
-        arquivo = open('turma_lista1.ind', 'r')
-        printa_arquivo(arquivo)
-        arquivo.close()
-    else:
-        print('Opcao invalida')
-elif opcao_menu == 2:
-    novo_registro = {}
-    novo_registro['matric'] = raw_input('Digite a matricula: ')
-    novo_registro['nome'] = raw_input('Digite o nome: ')
-    novo_registro['op'] = raw_input('Digite o OP: ')
-    novo_registro['curso'] = raw_input('Digite a curso: ')
-    novo_registro['turma'] = raw_input('Digite a turma: ')
-    # novo_registro = {'matric': '045000', 'nome': 'XXXXXXXXXXXXXXXXXX', 'op': '35', 'curso': 'G', 'turma': 'AB'}
-    arq_registros = open('benchmarks/lista1.txt', 'a')
-    arq_indices = open('indice_lista1.ind', 'w+')
-    arq_secundario_op = open('op_lista1.ind', 'a')
-    arq_secundario_turma = open('turma_lista1.ind', 'a')
-    adicionar_registro(arq_registros, arq_indices, arq_secundario_op, arq_secundario_turma, registros, indices, novo_registro)
-    arq_registros.close()
-    arq_indices.close()
-    arq_secundario_op.close()
-    arq_secundario_turma.close()
-elif opcao_menu == 3:
-    arquivo = open('indice_lista1.ind', 'r')
-    printa_arquivo(arquivo)
-    arquivo.close()
+# print('\n\tMenu')
+# print('1.\tVisualizar arquivos')
+# print('2.\tIncluir registro')
+# print('3.\tExcluir registro')
+# print('4.\tAtualizar registro')
+# opcao_menu = input()
+# if opcao_menu == 1:
+#     print('\n1\tArquivo de dados')
+#     print('2\tArquivo de indices primarios')
+#     print("3\tArquivo de indice secundario 'OP'")
+#     print("4\tArquivo de indice secundario 'TURMA'\n")
+#     escolha = input()
+#     if escolha == 1:
+#         arquivo = open('benchmarks/lista1.txt', 'r')
+#         printa_arquivo(arquivo)
+#         arquivo.close()
+#     elif escolha == 2:
+#         arquivo = open('indice_lista1.ind', 'r')
+#         printa_arquivo(arquivo)
+#         arquivo.close()
+#     elif escolha == 3:
+#         arquivo = open('op_lista1.ind', 'r')
+#         printa_arquivo(arquivo)
+#         arquivo.close()
+#     elif escolha == 4:
+#         arquivo = open('turma_lista1.ind', 'r')
+#         printa_arquivo(arquivo)
+#         arquivo.close()
+#     else:
+#         print('Opcao invalida')
+# elif opcao_menu == 2:
+#     novo_registro = {}
+#     novo_registro['matric'] = raw_input('Digite a matricula: ')
+#     novo_registro['nome'] = raw_input('Digite o nome: ')
+#     novo_registro['op'] = raw_input('Digite o OP: ')
+#     novo_registro['curso'] = raw_input('Digite a curso: ')
+#     novo_registro['turma'] = raw_input('Digite a turma: ')
+novo_registro = {'matric': '045000', 'nome': 'XXXXXXXXXXXXXXXXXX', 'op': '35', 'curso': 'G', 'turma': 'AB'}
+arq_registros = open('benchmarks/lista1.txt', 'a')
+arq_indices = open('indice_lista1.ind', 'w+')
+arq_secundario_op = open('op_lista1.ind', 'w+')
+arq_secundario_turma = open('turma_lista1.ind', 'w+')
+adicionar_registro(arq_registros, arq_indices, arq_secundario_op, arq_secundario_turma, registros, indices, novo_registro)
+arq_registros.close()
+arq_indices.close()
+arq_secundario_op.close()
+arq_secundario_turma.close()
+# elif opcao_menu == 3:
+#     arquivo = open('indice_lista1.ind', 'r')
+#     printa_arquivo(arquivo)
+#     arquivo.close()
 
-    print ('Digite a posicao do elemento a ser removido')
-    posicao_remover = input()
-    remover_registros(registros, posicao_remover)
+#     print ('Digite a posicao do elemento a ser removido')
+#     posicao_remover = input()
+#     remover_registros(registros, posicao_remover)
 
-    indices1 = open('indice_lista1.ind', 'w+')
-    indices = inicializa_indices(indices1, registros)
-    indices1.close()
+#     indices1 = open('indice_lista1.ind', 'w+')
+#     indices = inicializa_indices(indices1, registros)
+#     indices1.close()
 
-    secundario_op = open('op_lista1.ind', 'w+')
-    secundario_turma = open('turma_lista1.ind', 'w+')
-    inicializa_indice_secundario(secundario_op, registros, indices, 'op')
-    inicializa_indice_secundario(secundario_turma, registros, indices, 'turma')
-    secundario_op.close()
-    secundario_turma.close()
+#     secundario_op = open('op_lista1.ind', 'w+')
+#     secundario_turma = open('turma_lista1.ind', 'w+')
+#     inicializa_indice_secundario(secundario_op, registros, indices, 'op')
+#     inicializa_indice_secundario(secundario_turma, registros, indices, 'turma')
+#     secundario_op.close()
+#     secundario_turma.close()
 
-    lista1 = open('benchmarks/lista1.txt', 'r')
-    new_lista1 = open('lista1.txt', 'w')
-    d = 0
-    for lines in lista1:
-        if d != posicao_remover:
-            new_lista1.write(lines)
-        d += 1
-    lista1.close()
-    new_lista1.close()
+#     lista1 = open('benchmarks/lista1.txt', 'r')
+#     new_lista1 = open('lista1.txt', 'w')
+#     d = 0
+#     for lines in lista1:
+#         if d != posicao_remover:
+#             new_lista1.write(lines)
+#         d += 1
+#     lista1.close()
+#     new_lista1.close()
