@@ -1,7 +1,10 @@
+# Parâmetros: um array, e duas posições no array
+# Troca dois elementos de posição no array
 def troca_valores(array, i, j):
     array[i], array[j] = array[j], array[i]
 
-
+# Parâmetros: um array, sua posição final e inicial
+# Transforma um array em um heap
 def heapify(array, comeco, fim):
     esquerda = 2 * comeco + 1
     direita = 2 * (comeco + 1)
@@ -15,7 +18,7 @@ def heapify(array, comeco, fim):
         heapify(array, maximo, fim)
     return
 
-
+# Ordena um array por meio de um heapsort
 def heapsort(array):
     fim = len(array)
     comeco = fim // 2 - 1
@@ -26,10 +29,11 @@ def heapsort(array):
         heapify(array, 0, i)
     return
 
-
+# Variável global que conta a quantidade de registros
 num_registros = 0
 
-
+# A partir de um arquivio de registros, separa os campos e os coloca nas devidas variáveis
+# de uma lista de registros 
 def inicializa_registros(arquivo):
     global num_registros
     registros = []
@@ -45,7 +49,7 @@ def inicializa_registros(arquivo):
         num_registros += 1
     return registros
 
-
+# Gera chaves primárias de uma lista de registros e cria uma lista com elas e suas posições
 def inicializa_indices(arq_indices, registros):
     indices = []
     posicao = 0
@@ -60,7 +64,7 @@ def inicializa_indices(arq_indices, registros):
         arq_indices.write(indice['pk'] + ' ' * (2 + (30 - len(indice['pk']))) + str(indice['posicao']) + '\n')
     return indices
 
-
+# Ordena os índices por matrícula
 def ordena_indices(arq_indices, indices):
     arq_indices.seek(0, 0)
     heapsort(indices)
@@ -76,7 +80,7 @@ def opcoes_secundario(registros, ind_secundario):
             opcoes.append(registro[ind_secundario])
     return opcoes
 
-
+# Encontra um registro por meio da chave primária
 def busca_registro(chave_primaria, ind_secundario, registros):
     for registro in registros:
         pk = registro['matric'] + '#' + registro['nome']
@@ -85,7 +89,7 @@ def busca_registro(chave_primaria, ind_secundario, registros):
             return registro[ind_secundario]
     return None
 
-
+# Cria o arquivo de índices secundários usando os registros e os índices secundários
 def inicializa_indice_secundario(arq_secundario, registros, indices, ind_secundario):
     opcoes = opcoes_secundario(registros, ind_secundario)
     head = []
@@ -109,12 +113,12 @@ def printa_arquivo(arquivo):
         print(linha)
     return
 
-
+# Adiciona um novo registro a todos os arquivos, mudando as listas invertidas dos índices secundários
 def adicionar_registro(arq_registros, arq_indices, arq_secundario_op, arq_secundario_turma, registros, indices,
                        novo_registro):
     global num_registros
     registros.append(novo_registro)
-    arq_registros.write(
+    arq_registros.write(# escreve o novo registro no arquivo contendo todos
         '\n' + novo_registro['matric'] + ' ' + novo_registro['nome'] + ' ' * (41 - len(novo_registro['nome'])) +
         novo_registro['op'] + ' ' * 4 +
         novo_registro['curso'] + ' ' * 9 + novo_registro['turma'])
@@ -128,23 +132,25 @@ def adicionar_registro(arq_registros, arq_indices, arq_secundario_op, arq_secund
     indices.append(indice)
     ordena_indices(arq_indices, indices)
 
+    # Atualiza os índices secundários
     inicializa_indice_secundario(arq_secundario_op, registros, indices, 'op')
     inicializa_indice_secundario(arq_secundario_turma, registros, indices, 'turma')
     return
 
-
+# Remove um registro de todos os arquivos a partir por meio da matrícula
 def remover_registros(arq_registros, arq_indices, arq_secundario_op, arq_secundario_turma, registros, indices, matric_remover):
     posicao_remover = -1
     for i in range(0, len(registros)):
         if registros[i]['matric'] == matric_remover:
             posicao_remover = i
-    if posicao_remover == -1:
+    if posicao_remover == -1:# verifica se o registro está no arquivo
         print ('Registro nao encontrado')
-    else:
+    else:# remoção do registro e do índice
         registros.pop(posicao_remover)
         indices.pop(posicao_remover)
     final = i-1
     i = 0
+    # Atualiza os registros
     for registro in registros:
         arq_registros.write(
             registro['matric'] + ' ' + registro['nome'] + ' ' * (41 - len(registro['nome'])) +
@@ -153,25 +159,29 @@ def remover_registros(arq_registros, arq_indices, arq_secundario_op, arq_secunda
             arq_registros.write('\n')
         i += 1
     i = 0
-        for indice in indices:
-            arq_indices.write(indice['pk']+str(indice['posicao'])+'\n')
-            if i != final:
-                arq_indices.write('\n')
-            i += 1
-        inicializa_indice_secundario(arq_secundario_op, registros, indices, 'op')
-        inicializa_indice_secundario(arq_secundario_turma, registros, indices, 'turma')
+    # Atualiza os índices primários
+    for indice in indices:
+        arq_indices.write(indice['pk']+str(indice['posicao'])+'\n')
+        if i != final:
+            arq_indices.write('\n')
+        i += 1
+        # Atualiza os índices secundários
+    inicializa_indice_secundario(arq_secundario_op, registros, indices, 'op')
+    inicializa_indice_secundario(arq_secundario_turma, registros, indices, 'turma')
     return
 
-
+# Inicialização dos registros
 arq_registros1 = open('benchmarks/lista1.txt', 'r')
 registros = inicializa_registros(arq_registros1)
 arq_registros1.close()
 
+# Criação dos índices primários
 arq_indices1 = open('indice_lista1.ind', 'w+')
 indices = inicializa_indices(arq_indices1, registros)
 ordena_indices(arq_indices1, indices)
 arq_indices1.close()
 
+# Criação dos índices secundários
 secundario_op = open('op_lista1.ind', 'w+')
 secundario_turma = open('turma_lista1.ind', 'w+')
 inicializa_indice_secundario(secundario_op, registros, indices, 'op')
@@ -263,7 +273,7 @@ elif opcao_menu == 4:
     for i in range(0, len(registros)):
         if registros[i]['matric'] == matric_atualizar:
             posicao_atualizar = i
-    if posicao_atualizar == -1:
+    if posicao_atualizar == -1:# verificação da existência do registro
         print ('Registro nao encontrado')
     else:
         print (registros[posicao_atualizar]['matric'] + registros[posicao_atualizar]['nome'] +
@@ -284,7 +294,7 @@ elif opcao_menu == 4:
         new_registro['op'] = registros[posicao_atualizar]['op']
         new_registro['curso'] = registros[posicao_atualizar]['curso']
         new_registro['turma'] = registros[posicao_atualizar]['turma']
-        if campo_atualizar == 1:
+        if campo_atualizar == 1:# atualiza o dado escolhido com a informação dada
             new_registro['matric'] = dado
         elif campo_atualizar == 2:
             new_registro['nome'] = dado
@@ -313,5 +323,3 @@ elif opcao_menu == 4:
         arq_indices.close()
         arq_secundario_op.close()
         arq_secundario_turma.close()
-        print ('algo')
-
