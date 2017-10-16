@@ -148,6 +148,7 @@ def remover_registros(arq_registros, arq_indices, arq_secundario_op, arq_secunda
         registros[posicao_remover]['turma'] = 'XX'
         indices[posicao_remover]['pk'] = 'XXXXXX#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
         registros.pop(posicao_remover)
+        indices.pop(posicao_remover)
         final = i-1
         i = 0
         for registro in registros:
@@ -312,12 +313,14 @@ elif opcao_menu == 4:
 
         arq_registros = open('benchmarks/lista1.txt', 'w')
         arq_indices = open('indice_lista1.ind', 'w+')
-        arq_secundario_op = open('op_lista1.ind', 'a')
-        arq_secundario_turma = open('turma_lista1.ind', 'a')
+        arq_secundario_op = open('op_lista1.ind', 'w')
+        arq_secundario_turma = open('turma_lista1.ind', 'w')
         remover_registros(arq_registros, arq_indices, arq_secundario_op, arq_secundario_turma, registros, indices,
                           matric_atualizar)
-        arq_registros.close()
         arq_registros = open('benchmarks/lista1.txt', 'a')
+        arq_indices = open('indice_lista1.ind', 'w+')
+        arq_secundario_op = open('op_lista1.ind', 'w')
+        arq_secundario_turma = open('turma_lista1.ind', 'w')
         adicionar_registro(arq_registros, arq_indices, arq_secundario_op, arq_secundario_turma, registros, indices,
                            new_registro)
         arq_registros.close()
