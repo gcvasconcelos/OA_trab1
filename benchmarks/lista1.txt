@@ -17,4 +17,3 @@
 046946 Vitor Bruno Jacintho de Almeida          34    G         AX
 046956 Vitor Gouvea Franchi                     34    G         AX
 046961 Vitor Paulo Villarino Pinto              34    G         AX
-045000 XXXXXXXXXXXXXXXXXX	35	G	AB
