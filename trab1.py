@@ -143,16 +143,16 @@ def remover_registros(arq_registros, arq_indices, arq_secundario_op, arq_secunda
     else:
         registros.pop(posicao_remover)
         indices.pop(posicao_remover)
-        final = i-1
-        i = 0
-        for registro in registros:
-            arq_registros.write(
-                registro['matric'] + ' ' + registro['nome'] + ' ' * (41 - len(registro['nome'])) +
-                registro['op'] + ' ' * 4 + registro['curso'] + ' ' * 9 + registro['turma'])
-            if i != final:
-                arq_registros.write('\n')
-            i += 1
-        i = 0
+    final = i-1
+    i = 0
+    for registro in registros:
+        arq_registros.write(
+            registro['matric'] + ' ' + registro['nome'] + ' ' * (41 - len(registro['nome'])) +
+            registro['op'] + ' ' * 4 + registro['curso'] + ' ' * 9 + registro['turma'])
+        if i != final:
+            arq_registros.write('\n')
+        i += 1
+    i = 0
         for indice in indices:
             arq_indices.write(indice['pk']+str(indice['posicao'])+'\n')
             if i != final:
@@ -253,7 +253,6 @@ elif opcao_menu == 3:
     arq_secundario_turma.close()
 elif opcao_menu == 4:
     arquivo = open('indice_lista1.ind', 'r')
-    arquivo.seek(0, 0)
     printa_arquivo(arquivo)
     arquivo.close()
 
