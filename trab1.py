@@ -141,12 +141,6 @@ def remover_registros(arq_registros, arq_indices, arq_secundario_op, arq_secunda
     if posicao_remover == -1:
         print ('Registro nao encontrado')
     else:
-        registros[posicao_remover]['matric'] = 'XXXXXX'
-        registros[posicao_remover]['nome'] = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
-        registros[posicao_remover]['op'] = 'XX'
-        registros[posicao_remover]['curso'] = 'X'
-        registros[posicao_remover]['turma'] = 'XX'
-        indices[posicao_remover]['pk'] = 'XXXXXX#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
         registros.pop(posicao_remover)
         indices.pop(posicao_remover)
         final = i-1
@@ -166,22 +160,6 @@ def remover_registros(arq_registros, arq_indices, arq_secundario_op, arq_secunda
             i += 1
         inicializa_indice_secundario(arq_secundario_op, registros, indices, 'op')
         inicializa_indice_secundario(arq_secundario_turma, registros, indices, 'turma')
-    return
-
-
-def remove_lista(arquivo, posicao_remover):
-    registros = []
-    d = 0
-    for lines in arquivo:
-        if d != posicao_remover:
-            registros.append(lines)
-        d += 1
-    return registros
-
-
-def escreve_lista(arquivo, registros):
-    for i in range(0, len(registros)):
-        arquivo.write(registros[i])
     return
 
 
@@ -239,12 +217,17 @@ elif opcao_menu == 2:
     novo_registro['curso'] = raw_input('Digite a curso: ')
     novo_registro['turma'] = raw_input('Digite a turma: ')
 
+    arq_registros = open('benchmarks/lista1.txt', 'r')
+    printa_arquivo(arq_registros)
+
     arq_registros = open('benchmarks/lista1.txt', 'a')
     arq_indices = open('indice_lista1.ind', 'w+')
     arq_secundario_op = open('op_lista1.ind', 'a')
     arq_secundario_turma = open('turma_lista1.ind', 'a')
     adicionar_registro(arq_registros, arq_indices, arq_secundario_op, arq_secundario_turma, registros, indices,
                        novo_registro)
+    arq_registros = open('benchmarks/lista1.txt', 'r')
+    printa_arquivo(arq_registros)
     arq_registros.close()
     arq_indices.close()
     arq_secundario_op.close()
@@ -262,6 +245,8 @@ elif opcao_menu == 3:
     arq_secundario_op = open('op_lista1.ind', 'a')
     arq_secundario_turma = open('turma_lista1.ind', 'a')
     remover_registros(arq_registros, arq_indices, arq_secundario_op, arq_secundario_turma, registros, indices, matricula_remover)
+    arq_registros = open('benchmarks/lista1.txt', 'r')
+    printa_arquivo(arq_registros)
     arq_registros.close()
     arq_indices.close()
     arq_secundario_op.close()
@@ -323,6 +308,8 @@ elif opcao_menu == 4:
         arq_secundario_turma = open('turma_lista1.ind', 'w')
         adicionar_registro(arq_registros, arq_indices, arq_secundario_op, arq_secundario_turma, registros, indices,
                            new_registro)
+        arq_registros = open('benchmarks/lista1.txt', 'r')
+        printa_arquivo(arq_registros)
         arq_registros.close()
         arq_indices.close()
         arq_secundario_op.close()
